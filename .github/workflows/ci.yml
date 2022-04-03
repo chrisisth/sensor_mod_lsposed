@@ -17,12 +17,12 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '11'
-      - run: chmod +x ./gradlew
+      - run: cd apk && chmod +x ./gradlew
 
       # 使用最新版说明文件
       - run: cp README.md app/src/main/assets/
       # 编译
-      - run: ./gradlew assembleDebug
+      - run: cd apk && ./gradlew assembleDebug
 
       # 上传编译的 apk 文件
       - uses: actions/upload-artifact@v2
