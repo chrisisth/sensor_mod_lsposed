@@ -20,7 +20,7 @@ jobs:
       - run: cd apk && chmod +x ./gradlew
 
       # 使用最新版说明文件
-      - run: cp README.md app/src/main/assets/
+      - run: cp README.md apk/app/src/main/assets/
       # 编译
       - run: cd apk && ./gradlew assembleDebug
 
