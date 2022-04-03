@@ -1,0 +1,32 @@
+name: CI
+on: [push, pull_request]
+
+env:
+  APK: sersor_mod_lsposed-0.1.0-a1-debug.apk
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    # 大约用时 3 分钟
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v2
+
+      # 准备编译环境
+      - uses: actions/setup-java@v2
+        with:
+          distribution: 'zulu'
+          java-version: '11'
+      - run: chmod +x ./gradlew
+
+      # 使用最新版说明文件
+      - run: cp README.md app/src/main/assets/
+      # 编译
+      - run: ./gradlew assembleDebug
+
+      # 上传编译的 apk 文件
+      - uses: actions/upload-artifact@v2
+        with:
+          if-no-files-found: error
+          name: ${{ env.APK }}
+          path: apk/app/build/outputs/apk/debug/app-debug.apk
