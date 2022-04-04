@@ -1,5 +1,6 @@
 package org.wats_tool.sensor_mod_lsposed;
 
+import android.os.Handler;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -30,7 +31,9 @@ public class Hook implements IXposedHookLoadPackage {
 
         XposedBridge.log(LOG_TAG + "hook system_server, " + P_VERSION);
 
-        findAndHookMethod("android.hardware.SystemSensorManager", p.classLoader, "registerListenerImpl", new XC_MethodHook() {
+        findAndHookMethod("android.hardware.SystemSensorManager", p.classLoader, "registerListenerImpl",
+            SensorEventListener.class, Sensor.class, int.class, Handler.class, int.class, int.class,
+        new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam pa) throws Throwable {
                 // protected boolean registerListenerImpl(
