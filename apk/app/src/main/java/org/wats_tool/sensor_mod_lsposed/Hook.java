@@ -1,5 +1,7 @@
 package org.wats_tool.sensor_mod_lsposed;
 
+import java.util.HashSet;
+
 import android.os.Handler;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
@@ -14,13 +16,22 @@ import de.robv.android.xposed.XC_MethodHook;
 
 public class Hook implements IXposedHookLoadPackage {
     private final String LOG_TAG = "sensor_mod  ";
-    private final String P_VERSION = "sensor_mod version 0.1.0-a3";
+    private final String P_VERSION = "sensor_mod version 0.1.0-a4";
 
     private final ConfigHost ch = new ConfigHost();
+
+    private final HashSet<ClassLoader> classLoaderSet = new HashSet<>();
 
     // Hook 初始化执行入口
     @Override
     public void handleLoadPackage(final LoadPackageParam p) throws Throwable {
+        // 避免重复 hook
+        if (classLoaderSet.contains(p.classLoader)) {
+            XposedBridge.log(LOG_TAG + "#### sikp hook  packageName: " + p.packageName);
+            return;
+        }
+        classLoaderSet.add(p.classLoader);
+
         // 不挑选 hook 目标
         XposedBridge.log(LOG_TAG + "#### HOOK " + P_VERSION + "  packageName: " + p.packageName);
 
