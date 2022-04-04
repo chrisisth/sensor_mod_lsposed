@@ -21,15 +21,16 @@
 
 请从 [github actions](https://github.com/wats-tool/sensor_mod_lsposed/actions) 页面下载编译好的 apk 文件.
 
-安装之后在 LSPosed app 里面启用模块.
-
 
 ## 使用说明
+
+安装之后在 LSPosed app 里面启用模块.
+并启用想修改的目标 app.
 
 默认配置不启用任何功能, 需要编写配置文件实现对指定传感器数值的修改.
 需要使用 root 权限写入配置文件.
 
-修改配置文件之后, 需要重启 app 才能生效.
+修改配置文件之后, 需要重启目标 app 才能生效.
 
 ### TODO 配置文件
 
@@ -41,11 +42,12 @@
 # 以 # 开头的行是注释, 以及空白行会被直接忽略
 #
 # 格式如下: (一行是一条配置)
-# 传感器(类型) 模式(f/d) 数值1 数值2 数值3 .. .
+# 传感器(类型) 模式 数值1 数值2 数值3 .. .
 #
 # 模式:
 # + f: 固定数值, app 获取到的传感器输出始终为设置的固定数值
-# + d: 偏移, app 获取到的数值为传感器原始数值加上设置的偏移
+# + d: 偏移相加, app 获取到的数值为传感器原始数值加上设置的偏移
+# + dr: 偏移旋转, 按照坐标系旋转传感器的数值
 #
 # 数值*: 后跟若干个数值, 不同类型的传感器对应的数值个数不同
 
@@ -73,7 +75,7 @@ Android 系统对传感器数据的处理过程如下:
 1. 传感器硬件
 2. 内核驱动 (kernel, 可能随内核开源)
 3. 硬件抽象层 (HAL, `/vendor` 里面的闭源驱动)
-4. Android 框架层 (framework, 具体是 `system_server` 里面的 `SensorManager`)
+4. Android 框架层 (framework, `SensorManager`)
 5. 应用获取传感器数据 (app)
 
 由于 HAL 驱动一般是闭源的, 并且不同具体机型的硬件不同, 驱动很可能也不同.
@@ -82,8 +84,7 @@ Android 系统对传感器数据的处理过程如下:
 app 和系统的接口是 `SensorManager`, 这部分接口是稳定一致的,
 因此方便下手.
 
-`SensorManager` 位于 `system_server` 中, 关键代码是 java,
-因此使用 `Xposed` 框架修改比较方便.
+`SensorManager` 的关键代码是 java, 因此使用 `Xposed` 框架修改比较方便.
 Xposed 比较老了, 目前一般使用 `LSPosed` 框架来代替.
 LSPosed 的 API 兼容 Xposed, 使用 `magisk` 的 `zygisk` 实现 zygote 注入.
 
@@ -164,25 +165,7 @@ TODO
 
 `/data/dalvik-cache/sensor_mod.txt`
 
-主要代码通过 LSPosed 注入 `system_server` 中运行,
-那么为了加载配置文件, 需要找一个 system_server 有权限读的位置.
-
-通过查看 SELinux 的策略文件 (sepolicy):
-
-[`system_sepolicy/private/system_server.te#L35`](https://github.com/AOSP-11/system_sepolicy/blob/11/private/system_server.te#L35):
-
-```te
-allow system_server dalvikcache_data_file:dir r_dir_perms;
-allow system_server dalvikcache_data_file:file r_file_perms;
-```
-
-[`system_sepolicy/private/file_contexts#L482`](https://github.com/AOSP-11/system_sepolicy/blob/11/private/file_contexts#L482):
-
-```te
-/data/dalvik-cache(/.*)? u:object_r:dalvikcache_data_file:s0
-```
-
-可知 `/data/dalvik-cache/` 目录下被标记为 `dalvikcache_data_file` 的文件可以读.
+通过测试可知, 普通 app 具有对这个位置的读取权限.
 
 
 ## 相关链接
