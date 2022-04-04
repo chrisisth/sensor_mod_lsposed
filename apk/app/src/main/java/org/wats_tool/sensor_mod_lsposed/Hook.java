@@ -24,12 +24,13 @@ public class Hook implements IXposedHookLoadPackage {
     @Override
     public void handleLoadPackage(final LoadPackageParam p) throws Throwable {
         XposedBridge.log(LOG_TAG + "packageName: " + p.packageName);
-        // 只需要 hook system_server
-        if (!p.packageName.equals(HOOK_TARGET)) {
-            return;
-        }
+        // FIXME
+        // // 只需要 hook system_server
+        // if (!p.packageName.equals(HOOK_TARGET)) {
+        //     return;
+        // }
 
-        XposedBridge.log(LOG_TAG + "hook system_server, " + P_VERSION);
+        XposedBridge.log(LOG_TAG + "hook EVERYWHERE TODO system_server, " + P_VERSION);
 
         // protected boolean registerListenerImpl(
         // [0] SensorEventListener listener,
