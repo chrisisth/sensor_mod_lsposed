@@ -14,7 +14,7 @@ import de.robv.android.xposed.XC_MethodHook;
 
 public class Hook implements IXposedHookLoadPackage {
     private final String LOG_TAG = "sensor_mod  ";
-    private final String P_VERSION = "sensor_mod version 0.1.0-a1";
+    private final String P_VERSION = "sensor_mod version 0.1.0-a2";
 
     // system_server
     private final String HOOK_TARGET = "android";
@@ -31,25 +31,49 @@ public class Hook implements IXposedHookLoadPackage {
 
         XposedBridge.log(LOG_TAG + "hook system_server, " + P_VERSION);
 
+        // protected boolean registerListenerImpl(
+        // [0] SensorEventListener listener,
+        // [1] Sensor sensor,
+        // [2] int delayUs,
+        // [3] Handler handler,
+        // [4] int maxBatchReportLatencyUs,
+        // [5] int reservedFlags
+        // )
         findAndHookMethod("android.hardware.SystemSensorManager", p.classLoader, "registerListenerImpl",
             SensorEventListener.class, Sensor.class, int.class, Handler.class, int.class, int.class,
         new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam pa) throws Throwable {
-                // protected boolean registerListenerImpl(
-                // [0] SensorEventListener listener,
-                // [1] Sensor sensor,
-                // [2] int delayUs,
-                // [3] Handler handler,
-                // [4] int maxBatchReportLatencyUs,
-                // [5] int reservedFlags
-                // )
                 XposedBridge.log(LOG_TAG + "SystemSensorManager.registerListenerImpl()");
 
                 SensorEventListener listener = (SensorEventListener) pa.args[0];
                 Sensor sensor = (Sensor) pa.args[1];
 
                 debugSensor(sensor, listener);
+
+                // TODO
+            }
+            @Override
+            protected void afterHookedMethod(MethodHookParam pa) throws Throwable {
+                // nothing to do
+            }
+        });
+
+        // protected int configureDirectChannelImpl(
+        // [0] SensorDirectChannel channel,
+        // [1] Sensor sensor,
+        // [2] int rate
+        // )
+        findAndHookMethod("android.hardware.SystemSensorManager", p.classLoader, "configureDirectChannelImpl",
+            SensorDirectChannel.class, Sensor.class, int.class,
+        new XC_MethodHook() {
+            @Override
+            protected void beforeHookedMethod(MethodHookParam pa) throws Throwable {
+                XposedBridge.log(LOG_TAG + "SystemSensorManager.configureDirectChannelImpl");
+
+                Sensor sensor = (Sensor) pa.args[1];
+
+                debugSensor(sensor, null);
 
                 // TODO
             }
@@ -66,9 +90,10 @@ public class Hook implements IXposedHookLoadPackage {
         XposedBridge.log(LOG_TAG + "sensor name  " + s.getName());
 
         String fullClassName =
-            listener.getClass().getEnclosingClass() != null
+            listener == null ? "" :
+            (listener.getClass().getEnclosingClass() != null
             ? listener.getClass().getEnclosingClass().getName()
-            : listener.getClass().getName();
+            : listener.getClass().getName());
         XposedBridge.log(LOG_TAG + "fullClassName  " + fullClassName);
     }
 
