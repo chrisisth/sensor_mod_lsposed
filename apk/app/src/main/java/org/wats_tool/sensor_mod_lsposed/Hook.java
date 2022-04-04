@@ -14,23 +14,14 @@ import de.robv.android.xposed.XC_MethodHook;
 
 public class Hook implements IXposedHookLoadPackage {
     private final String LOG_TAG = "sensor_mod  ";
-    private final String P_VERSION = "sensor_mod version 0.1.0-a2";
-
-    // system_server
-    private final String HOOK_TARGET = "android";
+    private final String P_VERSION = "sensor_mod version 0.1.0-a3";
 
     private final ConfigHost ch = new ConfigHost();
 
     @Override
     public void handleLoadPackage(final LoadPackageParam p) throws Throwable {
-        XposedBridge.log(LOG_TAG + "packageName: " + p.packageName);
-        // FIXME
-        // // 只需要 hook system_server
-        // if (!p.packageName.equals(HOOK_TARGET)) {
-        //     return;
-        // }
-
-        XposedBridge.log(LOG_TAG + "hook EVERYWHERE TODO system_server, " + P_VERSION);
+        // 不挑选 hook 目标
+        XposedBridge.log(LOG_TAG + "#### HOOK " + P_VERSION + "  packageName: " + p.packageName);
 
         // protected boolean registerListenerImpl(
         // [0] SensorEventListener listener,
@@ -51,6 +42,10 @@ public class Hook implements IXposedHookLoadPackage {
                 Sensor sensor = (Sensor) pa.args[1];
 
                 debugSensor(sensor, listener);
+
+                // 替换 SensorEventListener
+                SensorEventListener l2 = new MyListener(ch, listener);
+                pa.args[0] = l2;
 
                 // TODO
             }
@@ -75,7 +70,6 @@ public class Hook implements IXposedHookLoadPackage {
                 Sensor sensor = (Sensor) pa.args[1];
 
                 debugSensor(sensor, null);
-
                 // TODO
             }
             @Override
@@ -86,16 +80,16 @@ public class Hook implements IXposedHookLoadPackage {
     }
 
     public void debugSensor(Sensor s, SensorEventListener listener) {
-        XposedBridge.log(LOG_TAG + "sensor id  " + s.getId());
-        XposedBridge.log(LOG_TAG + "sensor type  " + s.getType() + "  " + s.getStringType());
-        XposedBridge.log(LOG_TAG + "sensor name  " + s.getName());
+        XposedBridge.log(LOG_TAG + "  sensor id  " + s.getId());
+        XposedBridge.log(LOG_TAG + "  sensor type  " + s.getType() + "  " + s.getStringType());
+        XposedBridge.log(LOG_TAG + "  sensor name  " + s.getName());
 
         String fullClassName =
             listener == null ? "" :
             (listener.getClass().getEnclosingClass() != null
             ? listener.getClass().getEnclosingClass().getName()
             : listener.getClass().getName());
-        XposedBridge.log(LOG_TAG + "fullClassName  " + fullClassName);
+        XposedBridge.log(LOG_TAG + "  fullClassName  " + fullClassName);
     }
 
     class MyListener implements SensorEventListener {

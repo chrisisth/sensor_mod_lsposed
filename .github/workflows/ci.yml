@@ -2,7 +2,7 @@ name: CI
 on: [push, pull_request]
 
 env:
-  APK: sersor_mod_lsposed-0.1.0-a2-debug.apk
+  APK: sersor_mod_lsposed-0.1.0-a3-debug.apk
 
 jobs:
   build:
