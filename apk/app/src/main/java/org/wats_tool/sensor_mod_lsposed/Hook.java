@@ -289,7 +289,7 @@ public class Hook implements IXposedHookLoadPackage {
         @Override
         public void onAccuracyChanged(Sensor sensor, int accuracy) {
             // DEBUG
-            XposedBridge.log"debugHook:onAccuracyChanged "+(LOG_TAG + "onAccuracyChanged()  " + accuracy);
+            XposedBridge.log("debugHook:onAccuracyChanged "+LOG_TAG + "onAccuracyChanged()  " + accuracy);
             debugSensor(sensor, getFullClassName(next));
 
             next.onAccuracyChanged(sensor, accuracy);
