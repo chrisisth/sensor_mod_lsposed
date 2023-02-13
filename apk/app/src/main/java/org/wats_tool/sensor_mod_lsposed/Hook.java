@@ -394,7 +394,6 @@ public class Hook implements IXposedHookLoadPackage {
         public CalcSensorEventDataF(float[] config, String debug) {
             XposedBridge.log("F Befehl erkannt");
             XposedBridge.log("Config contains: " + java.util.Arrays.toString(config));
-            debug = "true";
             super(config, debug);
         }
 
