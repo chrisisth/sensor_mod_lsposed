@@ -27,7 +27,7 @@ public class Hook implements IXposedHookLoadPackage {
 
     private final HashSet<Integer> pidSet = new HashSet<>();
 
-    // Hook 初始化执行入口
+    // Hook Initialisierung des Ausführungsportals
     @Override
     public void handleLoadPackage(final LoadPackageParam p) throws Throwable {
         int pid = Process.myPid();
@@ -273,9 +273,9 @@ public class Hook implements IXposedHookLoadPackage {
         private ConfigHost ch;
         private SensorEventListener next;
         private Sensor sensor;
-        // 首次调试标志
+        // Erstes Inbetriebnahmezeichen
         private boolean first = true;
-        // 修改传感器数据的计算方法
+        // Berechnungsmethode zur Modifizierung von Sensordaten
         private CalcSensorEventData calc = null;
 
         public MyListener(ConfigHost ch, SensorEventListener next, Sensor sensor) {
@@ -303,43 +303,43 @@ public class Hook implements IXposedHookLoadPackage {
                 XposedBridge.log("debugHook:onAccuracyChanged "+LOG_TAG + "onSensorChanged(first)  " + joinArray(event.values));
                 debugSensor(sensor, getFullClassName(next));
             }
-            // 修改计算
+            // Berechnung modifizieren
             if (calc != null) {
                 calc.calc(event);
             }
-            // 透传
+            // Übertragungen
             next.onSensorChanged(event);
         }
     }
 
-    // 配置文件加载
+    // Laden von Konfigurationsdateien
     class ConfigHost {
-        // 配置文件路径
+        // Pfad der Konfigurationsdatei
         private final String CONF_PATH = "/data/dalvik-cache/sensor_mod.txt";
-        // 传感器模式: f 固定数值
+        // Sensor-Modus: f Feste Werte
         private final String MODE_F = "f";
-        // 传感器模式: d 偏移相加
+        // Sensor-Modus: d Offset-Summierung
         private final String MODE_D = "d";
-        // 传感器模式: dr 偏移旋转
+        // Sensor-Modus: dr Versetzte Drehung
         private final String MODE_DR = "dr";
 
-        // 配置文件特殊字符: # 注释
+        // Sonderzeichen in der Konfigurationsdatei: # Hinweis
         private final String C_COMMENT = "#";
-        // 配置文件特殊字符: (空格) 行内分隔符
+        // Sonderzeichen in der Konfigurationsdatei: (Leerzeichen) Zeilentrenner
         private final String C_SEP = " ";
 
-        // 配置文件最后更新时间 (用于避免重复加载)
+        // Konfigurationsdatei zuletzt aktualisiert am (Zur Vermeidung von Doppelbelastungen)
         private long mtime = 0;
 
-        // 尝试加载配置文件, 如果文件无变更 (修改时间) 则不重新加载
+        // Versuch, eine Konfigurationsdatei zu laden, Wenn es keine Änderungen am Dokument gibt (Zeit ändern) wird nicht nachgeladen
         public void load() {
             XposedBridge.log("debugHook:load "+LOG_TAG + "ConfigHost.load()  " + CONF_PATH);
 
             // TODO
         }
 
-        // 根据传感器类型获取计算方法
-        // 返回 null 表示不修改
+        // Zugriff auf Berechnungsmethoden je nach Sensortyp
+        // Return null Zeigt keine Änderung an
         public CalcSensorEventData getCalc(int type) {
             // TODO
             return null;
@@ -348,7 +348,7 @@ public class Hook implements IXposedHookLoadPackage {
         // TODO
     }
 
-    // 用于修改传感器数据 (计算)
+    // Zum Ändern von Sensordaten (Berechnung)
     interface CalcSensorEventData {
         public void calc(SensorEvent event);
     }
@@ -361,7 +361,7 @@ public class Hook implements IXposedHookLoadPackage {
         return o;
     }
 
-    // 公共代码
+    // Öffentliche Codes
     abstract class CalcSensorEventData0 implements CalcSensorEventData {
         protected float[] config;
         protected String debug = null;
@@ -377,14 +377,14 @@ public class Hook implements IXposedHookLoadPackage {
             XposedBridge.log("F Befehl erkannt");
             XposedBridge.log("Config contains: " + java.util.Arrays.toString(config));
             debug = "true";
-            // 修改之前
+            // Vor der Änderung
             if (debug != null) {
                 XposedBridge.log("debugHook:calc "+LOG_TAG + debug + " -> " + joinArray(event.values));
             }
-            // 修改数据
+            // Daten ändern
             doCalc(event);
 
-            // 修改之后
+            // Nach der Änderung
             if (debug != null) {
                 XposedBridge.log("debugHook:calc "+LOG_TAG + debug + " <- " + joinArray(event.values));
             }
@@ -393,7 +393,7 @@ public class Hook implements IXposedHookLoadPackage {
         abstract protected void doCalc(SensorEvent event);
     }
 
-    // 模式: f 固定数值
+    // Modus: f Feste Werte
     class CalcSensorEventDataF extends CalcSensorEventData0 {
         public CalcSensorEventDataF(float[] config, String debug) {
             super(config, debug);
@@ -405,7 +405,7 @@ public class Hook implements IXposedHookLoadPackage {
         }
     }
 
-    // 模式: d 偏移相加
+    // Modus: d Offset-Summierung
     class CalcSensorEventDataD extends CalcSensorEventData0 {
         public CalcSensorEventDataD(float[] config, String debug) {
             super(config, debug);
@@ -417,7 +417,7 @@ public class Hook implements IXposedHookLoadPackage {
         }
     }
 
-    // 模式: dr 偏移旋转
+    // Modus: dr Versetzte Drehung
     class CalcSensorEventDataDr extends CalcSensorEventData0 {
         public CalcSensorEventDataDr(float[] config, String debug) {
             super(config, debug);

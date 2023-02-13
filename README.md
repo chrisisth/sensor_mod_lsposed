@@ -1,105 +1,105 @@
 # sensor_mod_lsposed
 <https://github.com/wats-tool/sensor_mod_lsposed>
 
-[![build](https://github.com/wats-tool/sensor_mod_lsposed/actions/workflows/ci.yml/badge.svg)](https://github.com/wats-tool/sensor_mod_lsposed/actions)
+[! [build](https://github.com/wats-tool/sensor_mod_lsposed/actions/workflows/ci.yml/badge.svg)](https://github.com/wats-tool/sensor_ mod_lsposed/actions)
 
-修改手机传感器 (比如 旋转角度) 的数值
-(Modify android sensor value with LSPosed)
-
-
-## 主要需求
-
-最近在使用 `爱奇艺 VR` app 时 (廉价手机盒子 VR) 发现,
-必须平视前方, 画面角度才是对的.
-也就是说, 无法实现躺着玩 VR (视角偏上) (摔 ! ~~
-
-这怎么能忍 ?
-不行, 必须实现躺着玩儿.
+Ändern Sie den Wert eines Telefonsensors (z. B. den Drehwinkel)
+(Ändern Sie den Wert des Androiden-Sensors mit LSPosed)
 
 
-## 下载安装
+## Hauptanforderungen
 
-请从 [github actions](https://github.com/wats-tool/sensor_mod_lsposed/actions) 页面下载编译好的 apk 文件.
+Kürzlich habe ich bei der Verwendung der App "Aiki VR" (billige Telefonzelle VR) festgestellt, dass,
+Der Winkel des Bildschirms ist nur korrekt, wenn Sie geradeaus schauen.
+Mit anderen Worten, es ist nicht möglich, VR im Liegen (Draufsicht) zu spielen (ups! ~~Wie kann das sein?
+
+Wie kann ich das ertragen?
+Nein, man muss auch im Liegen spielen können.
 
 
-## 使用说明
+## Herunterladen und installieren
 
-安装之后在 LSPosed app 里面启用模块.
-并启用想修改的目标 app.
+Bitte laden Sie die kompilierte apk-Datei von der Seite [github actions](https://github.com/wats-tool/sensor_mod_lsposed/actions) herunter.
 
-默认配置不启用任何功能, 需要编写配置文件实现对指定传感器数值的修改.
-需要使用 root 权限写入配置文件.
 
-修改配置文件之后, 需要重启目标 app 才能生效.
+## Gebrauchsanweisung
 
-### TODO 配置文件
+Nach der Installation aktivieren Sie das Modul in der LSPosed-App.
+Aktivieren Sie die Zielanwendung, die Sie ändern möchten.
 
-配置文件路径: `/data/dalvik-cache/sensor_mod.txt`
+Die Standardkonfiguration aktiviert keine Funktionen und erfordert eine Konfigurationsdatei, um die angegebenen Sensorwerte zu ändern.
+Die Konfigurationsdatei muss mit Root-Rechten geschrieben werden.
 
-配置文件格式栗子:
+Nach der Änderung der Konfigurationsdatei muss die Zielanwendung neu gestartet werden, damit sie wirksam wird.
 
-```sh
-# 以 # 开头的行是注释, 以及空白行会被直接忽略
+### TODO Konfigurationsdatei
+
+Pfad der Konfigurationsdatei: `/data/dalvik-cache/sensor_mod.txt`
+
+Konfigurationsdateiformat chestnut:
+
+``sch
+# Zeilen, die mit # beginnen, sind Kommentare, und leere Zeilen werden ignoriert.
 #
-# 格式如下: (一行是一条配置)
-# 传感器(类型) 模式 数值1 数值2 数值3 .. .
+# Das Format ist wie folgt: (eine Zeile ist eine Konfiguration)
+# Sensor (Typ) Modus Wert1 Wert2 Wert3 ... .
+#...
+... # Modus:
++ f: fester Wert, die App erhält immer den Sensorausgang als festen Wert eingestellt
+# + d: Offset summiert, die App erhält den ursprünglichen Sensorwert plus den eingestellten Offset
+# + dr: Offsetrotation, der Wert des Sensors wird entsprechend dem Koordinatensystem gedreht
 #
-# 模式:
-# + f: 固定数值, app 获取到的传感器输出始终为设置的固定数值
-# + d: 偏移相加, app 获取到的数值为传感器原始数值加上设置的偏移
-# + dr: 偏移旋转, 按照坐标系旋转传感器的数值
-#
-# 数值*: 后跟若干个数值, 不同类型的传感器对应的数值个数不同
++ dr: die Anzahl der Werte, gefolgt von einer Anzahl von Werten, unterschiedlich für verschiedene Arten von Sensoren
 
-# TODO 实际栗子
-```
+# TODO Tatsächliche Kastanie
+```.
 
 
-## 编译
+## Kompilieren
 
-直接使用 Android Studio 打开项目并编译.
-
-
-## 主要设计
-
-廉价手机盒子 VR 使用手机自带传感器实现 `3DoF`,
-也就是 3 轴的旋转角度.
-
-涉及到的传感器 可能 有:
-加速度传感器 (重力), 磁场传感器 (指南针),
-角加速度传感器 (陀螺仪) 等.
-也可能有 方向传感器(角度传感器), 比较混乱.
-
-Android 系统对传感器数据的处理过程如下:
-
-1. 传感器硬件
-2. 内核驱动 (kernel, 可能随内核开源)
-3. 硬件抽象层 (HAL, `/vendor` 里面的闭源驱动)
-4. Android 框架层 (framework, `SensorManager`)
-5. 应用获取传感器数据 (app)
-
-由于 HAL 驱动一般是闭源的, 并且不同具体机型的硬件不同, 驱动很可能也不同.
-因此从 HAL 及以下层次修改传感器数据比较困难.
-
-app 和系统的接口是 `SensorManager`, 这部分接口是稳定一致的,
-因此方便下手.
-
-`SensorManager` 的关键代码是 java, 因此使用 `Xposed` 框架修改比较方便.
-Xposed 比较老了, 目前一般使用 `LSPosed` 框架来代替.
-LSPosed 的 API 兼容 Xposed, 使用 `magisk` 的 `zygisk` 实现 zygote 注入.
-
-要实现躺着玩儿, 就是将手机传感器的坐标在空间中旋转一定角度,
-从而实现当手机屏幕向下时, app 从传感器数据认为手机方向是竖直的.
-这需要对传感器数据进行对应修改, 涉及到空间旋转的矩阵坐标运算.
+Öffnen Sie das Projekt direkt in Android Studio und kompilieren Sie es.
 
 
-## 技术细节
+## Hauptentwurf
 
-首先祭出 `SensorManager` 的 [官方文档](https://developer.android.google.cn/reference/android/hardware/SensorManager).
+Billige Telefonzelle VR, die die Sensoren des Telefons nutzt, um 3DoF zu implementieren,
+der der 3-Achsen-Drehwinkel ist.
 
-app 获取传感器数据的代码示例如下:
+Dabei kann es sich um Sensoren handeln:
+Beschleunigungssensor (Schwerkraft), Magnetfeldsensor (Kompass),
+Winkelbeschleunigungssensoren (Gyroskop), usw.
+Es kann auch Richtungssensoren (Winkelsensoren) geben, die verwirrend sein können.
 
-```java
+Der Prozess der Verarbeitung von Sensordaten in Android läuft folgendermaßen ab:
+
+1. Sensor-Hardware
+2. Kernel-Treiber (Kernel, möglicherweise Open Source mit dem Kernel)
+3. Hardware-Abstraktionsschicht (HAL, Treiber mit geschlossenem Quellcode in `/vendor`)
+4. die Android-Rahmenschicht (Rahmen, "SensorManager")
+5. Anwendung zum Abrufen von Sensordaten (App)
+
+Da HAL-Treiber in der Regel Closed-Source sind und die Treiber für verschiedene Hardwaremodelle unterschiedlich sein können.
+Daher ist es schwierig, Sensordaten der HAL-Ebene und darunter zu ändern.
+
+Die Schnittstelle zwischen der App und dem System ist der `SensorManager`, der eine stabile und konsistente Schnittstelle darstellt,
+Diese Schnittstelle ist stabil und konsistent und daher leicht zu handhaben.
+
+Der Schlüsselcode für `SensorManager` ist Java, so dass es einfacher ist, ihn mit dem `Xposed`-Framework zu ändern.
+Xposed ist älter und wird jetzt im Allgemeinen durch das `LSPosed` Framework ersetzt.
+Die API von LSPosed ist kompatibel mit Xposed und verwendet `zygisk` von `magisk`, um die Zygote-Injektion zu implementieren.
+
+Um dies im Liegen zu tun, werden die Sensorkoordinaten des Telefons im Raum um einen bestimmten Winkel gedreht,
+Dadurch kann die App anhand der Sensordaten davon ausgehen, dass das Telefon vertikal ausgerichtet ist, wenn der Bildschirm des Telefons nach unten zeigt.
+Dies erfordert eine entsprechende Änderung der Sensordaten, die eine Matrix von räumlich gedrehten Koordinaten beinhaltet.
+
+
+## Technische Details
+
+Zunächst stellen wir die [offizielle Dokumentation] (https://developer.android.google.cn/reference/android/hardware/SensorManager) für `SensorManager` vor.
+
+Das Codebeispiel für die App zum Abrufen der Sensordaten lautet wie folgt:
+
+``java
 public class SensorActivity extends Activity implements SensorEventListener {
     private final SensorManager mSensorManager;
     private final Sensor mAccelerometer;
@@ -127,24 +127,24 @@ public class SensorActivity extends Activity implements SensorEventListener {
 }
 ```
 
-首先 (1) 使用 `getSystemService(SENSOR_SERVICE)` 获取 `SensorManager` 实例,
-然后 (2) 使用 `getDefaultSensor(Sensor.TYPE_*)` 获取传感器, 然后 (3) 使用 `registerListener()` 注册监听器,
-最后 (4) 在 `SensorEventListener.onSensorChanged(SensorEvent)` 回调中获得传感器数据.
+Zuerst (1) verwenden Sie `getSystemService(SENSOR_SERVICE)`, um die Instanz `SensorManager` zu erhalten,
+Dann (2) verwenden Sie `getDefaultSensor(Sensor.TYPE_*)`, um den Sensor zu erhalten, dann (3) verwenden Sie `registerListener()`, um den Listener zu registrieren,
+und schließlich (4) die Sensordaten mit dem Callback `SensorEventListener.onSensorChanged(SensorEvent)` abrufen.
 
-### SensorManager 和 SystemSensorManager
+### SensorManager und SystemSensorManager
 
-对应框架代码 (`platform_frameworks_base`) [`SensorManager.java`](https://github.com/aosp-mirror/platform_frameworks_base/blob/android10-d4-s1-release/core/java/android/hardware/SensorManager.java).
-但是 `SensorManager` 只是 `abstract class`, 实际干活的是 [`SystemSensorManager.java`](https://github.com/aosp-mirror/platform_frameworks_base/blob/android10-d4-s1-release/core/java/android/hardware/SystemSensorManager.java).
+Entsprechender Rahmencode (`platform_frameworks_base`) [`SensorManager.java`](https://github.com/aosp-mirror/platform_frameworks_base/blob/android10-d4 -s1-release/core/java/android/hardware/SensorManager.java).
+Aber `SensorManager` ist nur eine `abstrakte Klasse`, und diejenige, die tatsächlich die Arbeit macht, ist [`SystemSensorManager.java`](https://github.com/aosp-mirror/platform_frameworks_base/blob /android10-d4-s1-release/core/java/android/hardware/SystemSensorManager.java).
 
-在 `SystemSensorManager` 中 [`registerListenerImpl()`](https://github.com/aosp-mirror/platform_frameworks_base/blob/android10-d4-s1-release/core/java/android/hardware/SystemSensorManager.java#L145)
-实际进行 `SensorEventListener` 的注册:
+In `SystemSensorManager` [`registerListenerImpl()`](https://github.com/aosp-mirror/platform_frameworks_base/blob/android10-d4-s1- release/core/java/android/hardware/SystemSensorManager.java#L145)
+Tatsächliche Registrierung des ``SensorEventListener``:
 
-```java
+``java
 /** @hide */
 @Override
 protected boolean registerListenerImpl(
-    SensorEventListener listener,
-    Sensor sensor,
+    SensorEventListener-Listener,
+    Sensor Sensor,
     int delayUs,
     Handler handler,
     int maxBatchReportLatencyUs,
@@ -154,51 +154,49 @@ protected boolean registerListenerImpl(
 }
 ```
 
-可以对这个函数进行 hook, 将传入的 `SensorEventListener` 包装一层,
-替换成自己实现的代码, 从而对回调的传感器数据进行修改.
+Diese Funktion kann mit einem Hook versehen werden, um eine Schicht des eingehenden `SensorEventListener` zu umhüllen,
+und ersetzen Sie ihn durch Ihren eigenen Code, um die Sensordaten des Rückrufs zu ändern.
 
-### 修改传感器数据的计算
+### Ändern der Berechnung von Sensordaten
 
 TODO
 
-### 配置文件路径选择
+### Auswahl des Konfigurationsdateipfades
 
-`/data/dalvik-cache/sensor_mod.txt`
+'/data/dalvik-cache/sensor_mod.txt`
 
-通过测试可知, 普通 app 具有对这个位置的读取权限.
+Der Test zeigt, dass die normale Anwendung Lesezugriff auf diesen Speicherort hat.
 
 
-## 相关链接
+## Verwandte Links
 
 + [magisk](https://github.com/topjohnwu/Magisk/)
 
 + [LSPosed](https://github.com/lsposed/lsposed)
 
-+ [Xposed 模块编写教程](https://github.com/rovo89/XposedBridge/wiki/Development-tutorial)
++ [Xposed Module Writing Tutorial](https://github.com/rovo89/XposedBridge/wiki/Development-tutorial)
 
 + [Xposed Framework API](https://api.xposed.info/reference/packages.html)
 
-+ [JCenter 关闭后下载 xposed api 依赖](https://www.jianshu.com/p/7d4611546423)
++ [xposed api-Abhängigkeiten herunterladen, nachdem JCenter geschlossen wurde](https://www.jianshu.com/p/7d4611546423)
 
-+ [SensorManager 官方文档](https://developer.android.google.cn/reference/android/hardware/SensorManager)
++ [SensorManager offizielle Dokumentation](https://developer.android.google.cn/reference/android/hardware/SensorManager)
 
 
 ## LICENSE
 
 ```
-sensor_mod_lsposed: Modify android sensor value with LSPosed
-Copyright (C) 2022  sceext
+sensor_mod_lsposed: Ändern von Android-Sensorwerten mit LSPosed
+Copyright (C) 2022 sceext
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+Dieses Programm ist freie Software: Sie können es weiterverteilen und/oder verändern
+unter den Bedingungen der GNU General Public License, veröffentlicht von
+der Free Software Foundation, entweder Version 3 der Lizenz oder
+(nach Ihrer Wahl) jede spätere Version.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+Dieses Programm wird in der Hoffnung verteilt, dass es nützlich sein wird,
+Dieses Programm wird in der Hoffnung verteilt, dass es nützlich ist, aber OHNE JEGLICHE GARANTIE; sogar ohne die stillschweigende Garantie von
+Dieses Programm wird in der Hoffnung verteilt, dass es nützlich ist, aber OHNE JEGLICHE GARANTIE; auch ohne die stillschweigende Garantie der HANDELSÜBLICHKEIT oder der EIGNUNG FÜR EINEN BESTIMMTEN ZWECK.
+GNU General Public License für weitere Details.
 
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
-```
+Sie sollten eine Kopie der 
