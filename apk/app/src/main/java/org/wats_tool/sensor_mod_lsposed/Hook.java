@@ -33,12 +33,12 @@ public class Hook implements IXposedHookLoadPackage {
         int pid = Process.myPid();
         // 避免重复 hook
         if (pidSet.contains(pid)) {
-            XposedBridge.log(LOG_TAG + "#### pid " + pid + "  skip hook  packageName: " + p.packageName);
+            XposedBridge.log("handleLoadPackage: "+LOG_TAG + "#### pid " + pid + "  skip hook  packageName: " + p.packageName);
             return;
         }
         pidSet.add(pid);
 
-        XposedBridge.log(LOG_TAG + "#### pid " + pid + "  HOOK " + P_VERSION + "  packageName: " + p.packageName);
+        XposedBridge.log("handleLoadPackage: "+LOG_TAG + "#### pid " + pid + "  HOOK " + P_VERSION + "  packageName: " + p.packageName);
 
         // protected boolean registerListenerImpl(
         // [0] SensorEventListener listener,
@@ -53,7 +53,7 @@ public class Hook implements IXposedHookLoadPackage {
         new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam pa) throws Throwable {
-                XposedBridge.log(LOG_TAG + "SystemSensorManager.registerListenerImpl()");
+                XposedBridge.log("handleLoadPackage:beforeHookedMethod "+LOG_TAG + "SystemSensorManager.registerListenerImpl()");
 
                 SensorEventListener listener = (SensorEventListener) pa.args[0];
                 Sensor sensor = (Sensor) pa.args[1];
@@ -80,7 +80,7 @@ public class Hook implements IXposedHookLoadPackage {
         new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam pa) throws Throwable {
-                XposedBridge.log(LOG_TAG + "SystemSensorManager.configureDirectChannelImpl");
+                XposedBridge.log("handleLoadPackage:beforeHookedMethod "+LOG_TAG + "SystemSensorManager.configureDirectChannelImpl");
 
                 Sensor sensor = (Sensor) pa.args[1];
 
@@ -109,7 +109,7 @@ public class Hook implements IXposedHookLoadPackage {
             int.class, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam pa) throws Throwable {
-                XposedBridge.log(LOG_TAG + "SensorManager.getSensorList()");
+                XposedBridge.log("handleLoadPackage:debugHook "+LOG_TAG + "SensorManager.getSensorList()");
                 // TODO
             }
             @Override
@@ -121,7 +121,7 @@ public class Hook implements IXposedHookLoadPackage {
             int.class, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam pa) throws Throwable {
-                XposedBridge.log(LOG_TAG + "SensorManager.getDynamicSensorList()");
+                XposedBridge.log("handleLoadPackage:beforeHookedMethod "+LOG_TAG + "SensorManager.getDynamicSensorList()");
                 // TODO
             }
             @Override
@@ -133,7 +133,7 @@ public class Hook implements IXposedHookLoadPackage {
             int.class, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam pa) throws Throwable {
-                XposedBridge.log(LOG_TAG + "SensorManager.getDefaultSensor(" + pa.args[0] + ")");
+                XposedBridge.log("handleLoadPackage:beforeHookedMethod "+LOG_TAG + "SensorManager.getDefaultSensor(" + pa.args[0] + ")");
                 // TODO
             }
             @Override
@@ -145,7 +145,7 @@ public class Hook implements IXposedHookLoadPackage {
             int.class, boolean.class, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam pa) throws Throwable {
-                XposedBridge.log(LOG_TAG + "SensorManager.getDefaultSensor(" + pa.args[0] + ", " + pa.args[1] + ")");
+                XposedBridge.log("handleLoadPackage:beforeHookedMethod "+LOG_TAG + "SensorManager.getDefaultSensor(" + pa.args[0] + ", " + pa.args[1] + ")");
                 // TODO
             }
             @Override
@@ -157,7 +157,7 @@ public class Hook implements IXposedHookLoadPackage {
             SensorEventListener.class, Sensor.class, int.class, int.class, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam pa) throws Throwable {
-                XposedBridge.log(LOG_TAG + "SensorManager.registerListener()  1");
+                XposedBridge.log("handleLoadPackage:beforeHookedMethod "+LOG_TAG + "SensorManager.registerListener()  1");
                 // TODO
             }
             @Override
@@ -169,7 +169,7 @@ public class Hook implements IXposedHookLoadPackage {
             SensorEventListener.class, Sensor.class, int.class, Handler.class, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam pa) throws Throwable {
-                XposedBridge.log(LOG_TAG + "SensorManager.registerListener()  2");
+                XposedBridge.log("handleLoadPackage:beforeHookedMethod "+LOG_TAG + "SensorManager.registerListener()  2");
                 // TODO
             }
             @Override
@@ -181,7 +181,7 @@ public class Hook implements IXposedHookLoadPackage {
             SensorEventListener.class, Sensor.class, int.class, int.class, Handler.class, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam pa) throws Throwable {
-                XposedBridge.log(LOG_TAG + "SensorManager.registerListener()  3");
+                XposedBridge.log("handleLoadPackage:beforeHookedMethod "+LOG_TAG + "SensorManager.registerListener()  3");
                 // TODO
             }
             @Override
@@ -193,7 +193,7 @@ public class Hook implements IXposedHookLoadPackage {
             MemoryFile.class, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam pa) throws Throwable {
-                XposedBridge.log(LOG_TAG + "SensorManager.createDirectChannel()  1");
+                XposedBridge.log("handleLoadPackage:beforeHookedMethod "+LOG_TAG + "SensorManager.createDirectChannel()  1");
                 // TODO
             }
             @Override
@@ -205,7 +205,7 @@ public class Hook implements IXposedHookLoadPackage {
             HardwareBuffer.class, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam pa) throws Throwable {
-                XposedBridge.log(LOG_TAG + "SensorManager.createDirectChannel()  2");
+                XposedBridge.log("handleLoadPackage:beforeHookedMethod "+LOG_TAG + "SensorManager.createDirectChannel()  2");
                 // TODO
             }
             @Override
@@ -217,7 +217,7 @@ public class Hook implements IXposedHookLoadPackage {
             DynamicSensorCallback.class, Handler.class, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam pa) throws Throwable {
-                XposedBridge.log(LOG_TAG + "SensorManager.registerDynamicSensorCallback()");
+                XposedBridge.log("handleLoadPackage:beforeHookedMethod "+LOG_TAG + "SensorManager.registerDynamicSensorCallback()");
                 // TODO
             }
             @Override
@@ -229,7 +229,7 @@ public class Hook implements IXposedHookLoadPackage {
             TriggerEventListener.class, Sensor.class, new XC_MethodHook() {
             @Override
             protected void beforeHookedMethod(MethodHookParam pa) throws Throwable {
-                XposedBridge.log(LOG_TAG + "SensorManager.requestTriggerSensor()");
+                XposedBridge.log("handleLoadPackage:beforeHookedMethod "+LOG_TAG + "SensorManager.requestTriggerSensor()");
                 // TODO
             }
             @Override
@@ -265,8 +265,8 @@ public class Hook implements IXposedHookLoadPackage {
     }
 
     public void debugSensor(Sensor s, String fullClassName) {
-        XposedBridge.log(LOG_TAG + "  sensor id " + s.getId() + "  type " + s.getType() + " " + s.getStringType());
-        XposedBridge.log(LOG_TAG + "    name " + s.getName() + "  #### fullClassName " + fullClassName);
+        XposedBridge.log("debugHook:debugSensor "+LOG_TAG + "  sensor id " + s.getId() + "  type " + s.getType() + " " + s.getStringType());
+        XposedBridge.log("debugHook:debugSensor "+LOG_TAG + "    name " + s.getName() + "  #### fullClassName " + fullClassName);
     }
 
     class MyListener implements SensorEventListener {
@@ -289,7 +289,7 @@ public class Hook implements IXposedHookLoadPackage {
         @Override
         public void onAccuracyChanged(Sensor sensor, int accuracy) {
             // DEBUG
-            XposedBridge.log(LOG_TAG + "onAccuracyChanged()  " + accuracy);
+            XposedBridge.log"debugHook:onAccuracyChanged "+(LOG_TAG + "onAccuracyChanged()  " + accuracy);
             debugSensor(sensor, getFullClassName(next));
 
             next.onAccuracyChanged(sensor, accuracy);
@@ -300,7 +300,7 @@ public class Hook implements IXposedHookLoadPackage {
             if (first) {
                 first = false;
                 // DEBUG
-                XposedBridge.log(LOG_TAG + "onSensorChanged(first)  " + joinArray(event.values));
+                XposedBridge.log("debugHook:onAccuracyChanged "+LOG_TAG + "onSensorChanged(first)  " + joinArray(event.values));
                 debugSensor(sensor, getFullClassName(next));
             }
             // 修改计算
@@ -333,7 +333,7 @@ public class Hook implements IXposedHookLoadPackage {
 
         // 尝试加载配置文件, 如果文件无变更 (修改时间) 则不重新加载
         public void load() {
-            XposedBridge.log(LOG_TAG + "ConfigHost.load()  " + CONF_PATH);
+            XposedBridge.log("debugHook:load "+LOG_TAG + "ConfigHost.load()  " + CONF_PATH);
 
             // TODO
         }
@@ -379,14 +379,14 @@ public class Hook implements IXposedHookLoadPackage {
             debug = "true";
             // 修改之前
             if (debug != null) {
-                XposedBridge.log(LOG_TAG + debug + " -> " + joinArray(event.values));
+                XposedBridge.log("debugHook:calc "+LOG_TAG + debug + " -> " + joinArray(event.values));
             }
             // 修改数据
             doCalc(event);
 
             // 修改之后
             if (debug != null) {
-                XposedBridge.log(LOG_TAG + debug + " <- " + joinArray(event.values));
+                XposedBridge.log("debugHook:calc "+LOG_TAG + debug + " <- " + joinArray(event.values));
             }
         }
 
