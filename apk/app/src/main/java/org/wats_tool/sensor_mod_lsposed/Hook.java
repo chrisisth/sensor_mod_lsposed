@@ -373,6 +373,10 @@ public class Hook implements IXposedHookLoadPackage {
 
         @Override
         public void calc(SensorEvent event) {
+            
+            XposedBridge.log("F Befehl erkannt");
+            XposedBridge.log("Config contains: " + java.util.Arrays.toString(config));
+            debug = "true";
             // 修改之前
             if (debug != null) {
                 XposedBridge.log(LOG_TAG + debug + " -> " + joinArray(event.values));
