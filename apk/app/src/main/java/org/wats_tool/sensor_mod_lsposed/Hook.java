@@ -392,8 +392,6 @@ public class Hook implements IXposedHookLoadPackage {
     // 模式: f 固定数值
     class CalcSensorEventDataF extends CalcSensorEventData0 {
         public CalcSensorEventDataF(float[] config, String debug) {
-            XposedBridge.log("F Befehl erkannt");
-            XposedBridge.log("Config contains: " + java.util.Arrays.toString(config));
             super(config, debug);
         }
 
